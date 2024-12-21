@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="map_file" default="$(find turtlebot3_navigation)/maps/house.yaml"/>
+  <arg name="move_forward_only" default="false"/>
+
+  <!-- <arg name="nr" type="int" default="3"/> -->
+  <!-- <arg name="tb3" default="$(eval 'tb3_'+str(arg('nr') - 1))"/> -->
+  <arg name="foo" default="true"/>
+  <!-- <arg name="ypos" type="double" default="0"/> -->
+
+  <!-- <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/> -->
+  <arg name="urdf_file" default="$(find xacro)/xacro --inorder '$(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro'" />
+
+  <param name="robot_description" command="$(arg urdf_file)" />
+
+  <!-- rviz -->
+  <group if="$(arg foo)"> 
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation_multi.rviz"/>
+    <param name="/use_sim_time" value="true"/>
+  </group>
+
+  <group ns = "tb3_0">
+   
+   <param name="tf_prefix" value="tb3_0"/>
+   
+   <!-- Map server -->
+   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)">
+    <param name="frame_id" value="map" />
+   </node>
+
+   <!-- AMCL -->
+   <include file="$(find turtlebot3_navigation)/launch/amcl_multi.launch">
+    <arg name="robot" value="tb3_0"/>
+    <arg name="initial_pose_x" value="-7.0"/>
+    <arg name="initial_pose_y" value="-1.0"/>
+    <arg name="initial_pose_a" value="0.0"/>
+   </include>
+
+   <!-- move_base -->
+   <include file="$(find turtlebot3_navigation)/launch/move_base_multi.launch">
+    <arg name="robot" value="tb3_0"/>
+    <arg name="model" value="$(arg model)" />
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+   </include>
+
+  </group>
+
+  <group ns = "tb3_1">
+   
+   <param name="tf_prefix" value="tb3_1"/>
+   
+   <!-- Map server -->
+   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)">
+    <param name="frame_id" value="map" />
+   </node>
+
+   <!-- AMCL -->
+   <include file="$(find turtlebot3_navigation)/launch/amcl_multi.launch">
+    <arg name="robot" value="tb3_1"/>
+    <arg name="initial_pose_x" value="7.0"/>
+    <arg name="initial_pose_y" value="-1.0"/>
+    <arg name="initial_pose_a" value="0.0"/>
+   </include>
+
+   <!-- move_base -->
+   <include file="$(find turtlebot3_navigation)/launch/move_base_multi.launch">
+    <arg name="robot" value="tb3_1"/>
+    <arg name="model" value="$(arg model)" />
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+   </include>
+
+  </group>
+
+  <group ns = "tb3_2">
+   
+   <param name="tf_prefix" value="tb3_2"/>
+   
+   <!-- Map server -->
+   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)">
+    <param name="frame_id" value="map" />
+   </node>
+
+   <!-- AMCL -->
+   <include file="$(find turtlebot3_navigation)/launch/amcl_multi.launch">
+    <arg name="robot" value="tb3_2"/>
+    <arg name="initial_pose_x" value="0.5"/>
+    <arg name="initial_pose_y" value="3.0"/>
+    <arg name="initial_pose_a" value="0.0"/>
+   </include>
+
+   <!-- move_base -->
+   <include file="$(find turtlebot3_navigation)/launch/move_base_multi.launch">
+    <arg name="robot" value="tb3_2"/>
+    <arg name="model" value="$(arg model)" />
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+   </include>
+
+  </group>
+</launch>
